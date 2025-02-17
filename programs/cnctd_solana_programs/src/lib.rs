@@ -10,6 +10,11 @@ pub mod cnctd_solana_programs {
         msg!("Greetings from: {:?}", ctx.program_id);
         Ok(())
     }
+
+    pub fn test(ctx: Context<Initialize>) -> Result<()> {
+        msg!("Fuuuuuuuck {:?}", ctx.remaining_accounts);
+        Ok(())
+    }
 }
 
 #[derive(Accounts)]
