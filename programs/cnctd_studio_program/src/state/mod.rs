@@ -1,2 +1,2 @@
-pub mod album;
-// pub mod treasury;
+// pub mod album;
+pub mod treasury;
