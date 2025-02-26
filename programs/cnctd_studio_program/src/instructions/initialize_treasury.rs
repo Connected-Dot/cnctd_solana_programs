@@ -19,15 +19,16 @@ pub struct InitializeTreasury<'info> {
     pub system_program: Program<'info, System>,
 }
 
-pub fn handler(ctx: Context<InitializeTreasury>, initial_admins: Option<Vec<Pubkey>>) -> Result<()> {
+pub fn handler(ctx: Context<InitializeTreasury>, mut initial_admins: Vec<Pubkey>) -> Result<()> {
     let treasury = &mut ctx.accounts.treasury;
+    let payer_pubkey = ctx.accounts.admin.key();
 
-    let admins = match initial_admins {
-        Some(admins) if !admins.is_empty() => admins, // Use provided admins if not empty
-        _ => vec![ctx.accounts.admin.key()], // Default to signer if `None` or empty
-    };
+    // If no admins are provided, default to the payer
+    if initial_admins.is_empty() {
+        initial_admins.push(payer_pubkey);
+    }
 
-    treasury.admins = admins;
+    treasury.admins = initial_admins;
     treasury.bump = ctx.bumps.treasury;
     treasury.version = 1;
 
@@ -35,3 +36,4 @@ pub fn handler(ctx: Context<InitializeTreasury>, initial_admins: Option<Vec<Pubk
     
     Ok(())
 }
+

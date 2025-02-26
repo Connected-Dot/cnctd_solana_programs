@@ -7,3 +7,8 @@ pub struct Treasury {
     pub version: u8,
 }
 
+impl Treasury {
+    pub fn is_admin(&self, pubkey: &Pubkey) -> bool {
+        self.admins.iter().any(|admin| admin == pubkey)
+    }
+}

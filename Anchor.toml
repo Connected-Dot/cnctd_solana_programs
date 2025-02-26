@@ -5,7 +5,10 @@ resolution = true
 skip-lint = false
 
 [programs.localnet]
-cnctd_studio_program = "4X4ghmVDL7B29vNns8qizXsMUcsE8TZi1EvPewLsPkrN"
+cnctd_studio_program = "CSPd6eauKNBXfrQnKmqrHKEjt6xtW7mgzmfV2XPfiy5i"
+
+[programs.devnet]
+cnctd_studio_program = "CSPd6eauKNBXfrQnKmqrHKEjt6xtW7mgzmfV2XPfiy5i"
 
 [registry]
 url = "https://api.apr.dev"
