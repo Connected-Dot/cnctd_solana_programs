@@ -2,7 +2,6 @@ use anchor_lang::prelude::*;
 
 #[account]
 pub struct ArtistPDA {
-    // pub user_id_hash: [u8; 32],        // Hashed user ID
     pub admin: Pubkey,        // Always your program's treasury PDA
     pub auth: Option<Pubkey>,        // User's wallet (can change ATAs)
     pub usdc_ata: Pubkey,      // Program-derived ATA (default)
