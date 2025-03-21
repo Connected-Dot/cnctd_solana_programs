@@ -9,6 +9,8 @@ pub mod arguments;
 use crate::arguments::metadata::Metadata;
 // use crate::arguments::mint_album_args::MintAlbumArgs;
 use crate::instructions::initialize_token_mint::InitializeTokenMintArgs;
+use crate::arguments::purchase_release_args::PurchaseReleaseArgs;
+use crate::arguments::initialize_user_args::InitializeUserArgs;
 
 use instructions::*;
 
@@ -42,9 +44,21 @@ pub mod cnctd_solana_program {
         instructions::add_metaplex_metadata::add_metaplex_metadata(ctx, metadata)
     }
 
-    // pub fn initialize_artist(ctx: Context<InitializeArtist>) -> Result<()> {
-    //     instructions::initialize_artist::initialize_artist(ctx)
-    // }
+    pub fn purchase_release(ctx: Context<PurchaseRelease>, data: PurchaseReleaseArgs) -> Result<()> {
+        instructions::purchase_release::purchase_release(ctx, data)
+    }
+
+    pub fn initialize_user(ctx: Context<InitializeUser>, data: InitializeUserArgs) -> Result<()> {
+        instructions::initialize_user::initialize_user(ctx, data)
+    }
+
+    pub fn close_user_account(ctx: Context<CloseUserAccount>, user_id: String) -> Result<()> {
+        instructions::close_user_account::close_user_account(ctx, user_id)
+    }
+
+    pub fn update_admins(ctx: Context<UpdateAdmins>, action: AdminAction) -> Result<()> {
+        instructions::update_admins::update_admins(ctx, action)
+    }
 
     // pub fn mint_album(ctx: Context<MintAlbum>, data: MintAlbumArgs) -> Result<()> {
     //     instructions::mint_album::mint_album(ctx, data)

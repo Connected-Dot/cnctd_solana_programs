@@ -31,4 +31,28 @@ pub enum CnctdStudioError {
 
     #[msg("Invalid Mint Authority")]
     InvalidMintAuthority,
+
+    #[msg("Invalid artist PDA")]
+    InvalidArtistPDA,
+
+    #[msg("Invalid token account")]
+    InvalidTokenAccount,
+
+    #[msg("Invalid token mint")]
+    InvalidTokenMint,
+    
+    #[msg("Splits must add up to 100%")]
+    InvalidSplitTotal,
+
+    #[msg("Cannot remove the last admin")]
+    CannotRemoveLastAdmin,
+
+    #[msg("Admin already exists")]
+    AdminAlreadyExists,
+
+    #[msg("Invalid user")]
+    InvalidUser,
+
+    #[msg("Admin not found")]
+    AdminNotFound,
 }
