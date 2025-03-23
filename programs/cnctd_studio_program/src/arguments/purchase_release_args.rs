@@ -27,4 +27,8 @@ pub struct PurchaseReleaseArgs {
     // Optional Extra Metadata
     pub band_id: Option<String>,
     pub release_date: Option<i64>,
+
+    pub fee_compensation: Option<u64>,
+    pub cnctd_reward: Option<u64>,
+    pub music_reward: Option<u64>,
 }
