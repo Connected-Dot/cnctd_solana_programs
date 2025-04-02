@@ -8,6 +8,25 @@ pub struct Creator {
     pub share: u8,
 }
 
+impl Creator {
+    pub fn to_metaplex_creator(&self, treasury_key: &Pubkey) -> mpl_token_metadata::types::Creator {
+        mpl_token_metadata::types::Creator {
+            address: self.address,
+            verified: self.address == *treasury_key, // Only mark as verified if it's the treasury
+            share: self.share,
+        }
+    }
+    
+    pub fn multiple_to_metaplex_creators(
+        creators: Vec<Creator>, 
+        treasury_key: &Pubkey
+    ) -> Vec<mpl_token_metadata::types::Creator> {
+        creators.into_iter().map(|creator| {
+            creator.to_metaplex_creator(treasury_key)
+        }).collect()
+    }
+}
+
 #[derive(AnchorSerialize, AnchorDeserialize, Clone, Debug, Eq, PartialEq)]
 pub struct Collection {
     pub verified: bool,

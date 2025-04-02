@@ -6,13 +6,9 @@ use anchor_spl::token_2022::spl_token_2022::instruction::AuthorityType as Author
 use anchor_spl::token_2022::{self, SetAuthority as SetAuthority2022, Token2022, MintTo as MintTo2022};
 use anchor_spl::associated_token::{self, AssociatedToken};
 
+use crate::arguments::initialize_token_mint_args::InitializeTokenMintArgs;
 use crate::errors::CnctdStudioError;
 use crate::state::treasury::Treasury;
-
-#[derive(AnchorSerialize, AnchorDeserialize, Clone, Debug, Eq, PartialEq)]
-pub struct InitializeTokenMintArgs {
-    pub standard: bool,
-}
 
 #[derive(Accounts)]
 pub struct InitializeTokenMint<'info> {

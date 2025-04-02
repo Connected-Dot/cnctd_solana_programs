@@ -5,12 +5,19 @@ pub mod state;
 pub mod errors;
 pub mod constants;
 pub mod arguments;
+pub mod utils;
 
-use crate::arguments::metadata::Metadata;
-// use crate::arguments::mint_album_args::MintAlbumArgs;
-use crate::instructions::initialize_token_mint::InitializeTokenMintArgs;
-use crate::arguments::purchase_release_args::PurchaseReleaseArgs;
-use crate::arguments::initialize_user_args::InitializeUserArgs;
+use crate::arguments::{
+    metadata::Metadata,
+    initialize_token_mint_args::InitializeTokenMintArgs,
+    initialize_user_args::InitializeUserArgs,
+    initialize_band_args::InitializeBandArgs,
+    release::{
+        OpenEscrowArgs,
+        FulfillReleaseArgs,
+        CompleteReleaseArgs,
+    },
+};
 
 use instructions::*;
 
@@ -18,6 +25,7 @@ declare_id!("CSPd6eauKNBXfrQnKmqrHKEjt6xtW7mgzmfV2XPfiy5i");
 
 #[program]
 pub mod cnctd_solana_program {
+
     use super::*;
 
     // pub fn initialize(ctx: Context<Initialize>) -> Result<()> {
@@ -44,12 +52,19 @@ pub mod cnctd_solana_program {
         instructions::add_metaplex_metadata::add_metaplex_metadata(ctx, metadata)
     }
 
-    pub fn purchase_release(ctx: Context<PurchaseRelease>, data: PurchaseReleaseArgs) -> Result<()> {
-        instructions::purchase_release::purchase_release(ctx, data)
-    }
+    // pub fn purchase_release<'info>(
+    //     ctx: Context<'_, '_, '_, 'info, PurchaseRelease<'info>>,
+    //     data: PurchaseReleaseArgs,
+    // ) -> Result<()> {
+    //     instructions::purchase_release::purchase_release(ctx, data)
+    // }
 
     pub fn initialize_user(ctx: Context<InitializeUser>, data: InitializeUserArgs) -> Result<()> {
         instructions::initialize_user::initialize_user(ctx, data)
+    }
+
+    pub fn initialize_band(ctx: Context<InitializeBand>, data: InitializeBandArgs) -> Result<()> {
+        instructions::initialize_band::initialize_band(ctx, data)
     }
 
     pub fn close_user_account(ctx: Context<CloseUserAccount>, user_id: String) -> Result<()> {
@@ -59,6 +74,28 @@ pub mod cnctd_solana_program {
     pub fn update_admins(ctx: Context<UpdateAdmins>, action: AdminAction) -> Result<()> {
         instructions::update_admins::update_admins(ctx, action)
     }
+
+    pub fn open_release_escrow(ctx: Context<OpenEscrow>, args: OpenEscrowArgs) -> Result<()> {
+        instructions::release::open_escrow(ctx, args)
+    }
+
+    pub fn fulfill_release<'info>(
+        ctx: Context<'_, '_, '_, 'info, FulfillRelease<'info>>, 
+        args: FulfillReleaseArgs
+    ) -> Result<()> {
+        instructions::release::fulfill(ctx, args)
+    }
+
+    pub fn complete_release<'info>(
+        ctx: Context<'_, '_, '_, 'info, CompleteRelease<'info>>, 
+        args: CompleteReleaseArgs
+    ) -> Result<()> {
+        instructions::release::complete(ctx, args)
+    }
+
+    // pub fn close_release_escrow(ctx: Context<CloseEscrow>, args: CloseEscrowArgs) -> Result<()> {
+    //     instructions::release_nft::close_escrow(ctx, args)
+    // }
 
     // pub fn mint_album(ctx: Context<MintAlbum>, data: MintAlbumArgs) -> Result<()> {
     //     instructions::mint_album::mint_album(ctx, data)

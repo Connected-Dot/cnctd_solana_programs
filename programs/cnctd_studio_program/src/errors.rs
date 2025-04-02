@@ -2,6 +2,9 @@ use anchor_lang::prelude::*;
 
 #[error_code]
 pub enum CnctdStudioError {
+    #[msg("Not implemented yet.")]
+    NotImplemented,
+
     #[msg("Invalid input provided.")]
     InvalidInput,
 
@@ -55,4 +58,34 @@ pub enum CnctdStudioError {
 
     #[msg("Admin not found")]
     AdminNotFound,
+
+    #[msg("Not enough accounts provided")]
+    NotEnoughAccounts,
+
+    #[msg("Escrow already fulfilled")]
+    EscrowAlreadyFulfilled,
+
+    #[msg("Token account not empty")]
+    TokenAccountNotEmpty,
+
+    #[msg("Close account failed")]
+    CloseAccountFailed,
+
+    #[msg("Transfer failed")]
+    TransferFailed,
+
+    #[msg("Invalid payment recipient")]
+    InvalidPaymentReceiver,
+
+    #[msg("Invalid payment splits")]
+    InvalidPaymentSplits,
+
+    #[msg("Escrow not fulfilled")]
+    EscrowNotFulfilled,
+
+    #[msg("Payments not fulfilled")]
+    PaymentsNotFulfilled,
+
+    #[msg("NFT not minted")]
+    NFTNotMinted,
 }
