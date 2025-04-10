@@ -3,10 +3,14 @@ use anchor_lang::prelude::*;
 mod open_escrow_args;
 mod fulfill_args;
 mod complete_args;
+mod purchase_access_args;
+mod close_release_access_args;
 
 pub use open_escrow_args::*;
 pub use fulfill_args::*;
 pub use complete_args::*;
+pub use purchase_access_args::*;
+pub use close_release_access_args::*;
 
 #[derive(AnchorSerialize, AnchorDeserialize, Clone, Debug)]
 pub struct PaymentSplit {

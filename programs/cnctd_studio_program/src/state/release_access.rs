@@ -4,22 +4,22 @@ use anchor_lang::prelude::*;
 pub struct ReleaseAccess {
     pub release_id: String,
     pub buyer_id: String,
-    pub access_type: AccessType,
     pub created_at: i64,
     pub expiration_date: Option<i64>,
-    pub access_rights: AccessRights,
-    pub clockwork_thread_id: Option<Pubkey>,
-    pub bump: u8,
+    // pub bump: u8,
 }
 
-#[derive(AnchorSerialize, AnchorDeserialize, Clone, PartialEq, Eq, Debug)]
-pub enum AccessType {
-    Rental,
-    Purchase,
-}
-
-#[derive(AnchorSerialize, AnchorDeserialize, Clone, PartialEq, Eq, Debug)]
-pub struct AccessRights {
-    pub can_stream: bool,
-    pub can_download: bool,
+impl ReleaseAccess {
+    // Calculate space needed for the account
+    pub fn space() -> usize {
+        // Use a more generous allocation approach
+        let size = 8 + // discriminator
+            32 + // release_id (max)
+            32 + // buyer_id (max)
+            8 + // created_at (i64 timestamp)
+            9 + // expiration_date (Option<i64>): 1 for variant + 8 for value
+            // 1 + // bump
+            16; // Extra padding for safety
+        size
+    }
 }

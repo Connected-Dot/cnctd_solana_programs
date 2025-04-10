@@ -1,11 +1,11 @@
 use anchor_lang::prelude::*;
 use anchor_spl::{associated_token::AssociatedToken, metadata::{mpl_token_metadata}, token::{Mint, Token, TokenAccount}};
 
-use crate::{arguments::{metadata::Creator, release::FulfillReleaseArgs,}, errors::CnctdStudioError, state::{release_escrow::ReleaseEscrow, treasury::Treasury, user_pda::UserPDA}, utils::UuidFormatting};
+use crate::{arguments::{metadata::Creator, release::FulfillReleaseArgs,}, errors::CnctdStudioError, state::{release_access::ReleaseAccess, release_escrow::ReleaseEscrow, treasury::Treasury, user_pda::UserPDA}, utils::UuidFormatting};
 
 #[derive(Accounts)]
 #[instruction(args: FulfillReleaseArgs)]
-pub struct FulfillRelease<'info> {
+pub struct FulfillReleaseAccess<'info> {
     #[account(
         mut,
         constraint = treasury.is_admin(&admin.key()) @ CnctdStudioError::Unauthorized
@@ -45,7 +45,7 @@ pub struct FulfillRelease<'info> {
     pub escrow_usdc_ata: Account<'info, TokenAccount>,
 
     #[account(
-        init,
+        init_if_needed,
         payer = admin,
         mint::decimals = 0,
         mint::authority = treasury,
@@ -57,9 +57,9 @@ pub struct FulfillRelease<'info> {
         init_if_needed,
         payer = admin,
         associated_token::mint = nft_mint,
-        associated_token::authority = buyer,
+        associated_token::authority = treasury,
     )]
-    pub buyer_nft_ata: Account<'info, TokenAccount>,
+    pub treasury_nft_ata: Account<'info, TokenAccount>,
 
     /// CHECK: This is the metadata account that will be created
     #[account(
@@ -82,14 +82,27 @@ pub struct FulfillRelease<'info> {
     pub associated_token_program: Program<'info, AssociatedToken>,
     pub system_program: Program<'info, System>,
     pub rent: Sysvar<'info, Rent>,
+
+    #[account(
+        init_if_needed,
+        payer = admin,
+        space = ReleaseAccess::space(),
+        seeds = [
+            b"release_access",
+            args.release_id.to_7_byte_seed().as_ref(),
+            args.buyer_id.to_7_byte_seed().as_ref(),
+        ],
+        bump,
+    )]
+    pub release_access: Account<'info, ReleaseAccess>, // This is the new account to be created
 }
 
-pub fn fulfill<'a, 'b, 'c, 'info>(
-    mut ctx: Context<'a, 'b, 'c, 'info, FulfillRelease<'info>>,
+pub fn fulfill_with_access<'a, 'b, 'c, 'info>(
+    mut ctx: Context<'a, 'b, 'c, 'info, FulfillReleaseAccess<'info>>,
     args: FulfillReleaseArgs
 ) -> Result<()> {
     msg!("Fulfill Release Instruction");
-    
+
     // 1. Pay the treasury fee from escrow
     pay_treasury_fee(&mut ctx.accounts, &args)?;
 
@@ -107,6 +120,22 @@ pub fn fulfill<'a, 'b, 'c, 'info>(
     escrow.payments_fulfilled = true;
     // escrow.nft_minted is already set in mint_nft function
     escrow.fulfilled = true;
+
+    // Populate the release_access PDA
+    let release_access = &mut ctx.accounts.release_access;
+    release_access.release_id = args.release_id.clone();
+    msg!("Release ID: {}", release_access.release_id);
+    release_access.buyer_id = args.buyer_id.clone();
+    msg!("Buyer ID: {}", release_access.buyer_id);
+    // release_access.nft_mint = ctx.accounts.nft_mint.key();
+    // msg!("NFT Mint: {}", release_access.nft_mint);
+    release_access.created_at = args.created_at;
+    msg!("Created At: {}", release_access.created_at);
+    release_access.expiration_date = args.expiration_date;
+    msg!("Expiration Date: {:?}", release_access.expiration_date);
+    // release_access.bump = ctx.bumps.release_access;
+    // msg!("Release Access PDA Bump: {}", release_access.bump);
+    
     
     // 5. Reimburse admin for transaction fees if specified
     ctx.accounts.treasury.reimburse_admin(
@@ -122,7 +151,7 @@ pub fn fulfill<'a, 'b, 'c, 'info>(
 }
 
 // Helper function to pay treasury fee
-fn pay_treasury_fee(accounts: &mut FulfillRelease, args: &FulfillReleaseArgs) -> Result<()> {
+fn pay_treasury_fee(accounts: &mut FulfillReleaseAccess, args: &FulfillReleaseArgs) -> Result<()> {
     msg!("Paying treasury fee: {} USDC", accounts.escrow.treasury_fee);
     
     let release_seed = args.release_id.to_7_byte_seed();
@@ -154,7 +183,7 @@ fn pay_treasury_fee(accounts: &mut FulfillRelease, args: &FulfillReleaseArgs) ->
 
 // Helper function to pay artists - with explicit lifetimes
 fn pay_artists<'a, 'b, 'c, 'info>(
-    accounts: &mut FulfillRelease<'info>,
+    accounts: &mut FulfillReleaseAccess<'info>,
     remaining_accounts: &'a [AccountInfo<'info>],  // Note the explicit lifetimes
     args: &FulfillReleaseArgs
 ) -> Result<()> {
@@ -205,8 +234,8 @@ fn pay_artists<'a, 'b, 'c, 'info>(
 }
 
 // Helper function to mint NFT and create metadata
-fn mint_nft(accounts: &mut FulfillRelease, args: &FulfillReleaseArgs) -> Result<()> {
-    msg!("Minting NFT to buyer");
+fn mint_nft(accounts: &mut FulfillReleaseAccess, args: &FulfillReleaseArgs) -> Result<()> {
+    msg!("Minting NFT to treasury");
     
     // 1. Mint one token to the buyer
     let treasury_seeds: &[&[u8]] = &[b"treasury", &[accounts.treasury.bump]];
@@ -217,7 +246,7 @@ fn mint_nft(accounts: &mut FulfillRelease, args: &FulfillReleaseArgs) -> Result<
             accounts.token_program.to_account_info(),
             anchor_spl::token::MintTo {
                 mint: accounts.nft_mint.to_account_info(),
-                to: accounts.buyer_nft_ata.to_account_info(),
+                to: accounts.treasury_nft_ata.to_account_info(),
                 authority: accounts.treasury.to_account_info(),
             },
             &[treasury_seeds]

@@ -16,6 +16,8 @@ use crate::arguments::{
         OpenEscrowArgs,
         FulfillReleaseArgs,
         CompleteReleaseArgs,
+        PurchaseAccessArgs,
+        CloseReleaseAccessArgs,
     },
 };
 
@@ -79,11 +81,18 @@ pub mod cnctd_solana_program {
         instructions::release::open_escrow(ctx, args)
     }
 
-    pub fn fulfill_release<'info>(
-        ctx: Context<'_, '_, '_, 'info, FulfillRelease<'info>>, 
+    pub fn fulfill_release_nft<'info>(
+        ctx: Context<'_, '_, '_, 'info, FulfillReleaseNFT<'info>>, 
         args: FulfillReleaseArgs
     ) -> Result<()> {
-        instructions::release::fulfill(ctx, args)
+        instructions::release::fulfill_with_nft(ctx, args)
+    }
+
+    pub fn fulfill_release_access<'info>(
+        ctx: Context<'_, '_, '_, 'info, FulfillReleaseAccess<'info>>, 
+        args: FulfillReleaseArgs
+    ) -> Result<()> {
+        instructions::release::fulfill_with_access(ctx, args)
     }
 
     pub fn complete_release<'info>(
@@ -91,6 +100,17 @@ pub mod cnctd_solana_program {
         args: CompleteReleaseArgs
     ) -> Result<()> {
         instructions::release::complete(ctx, args)
+    }
+
+    pub fn purchase_release_access<'info>(
+        ctx: Context<'_, '_, '_, 'info, PurchaseAccess<'info>>, 
+        args: PurchaseAccessArgs
+    ) -> Result<()> {
+        instructions::release::purchase_access(ctx, args)
+    }
+
+    pub fn close_release_access(ctx: Context<CloseReleaseAccess>, args: CloseReleaseAccessArgs) -> Result<()> {
+        instructions::release::close_release_access(ctx, args)
     }
 
     // pub fn close_release_escrow(ctx: Context<CloseEscrow>, args: CloseEscrowArgs) -> Result<()> {

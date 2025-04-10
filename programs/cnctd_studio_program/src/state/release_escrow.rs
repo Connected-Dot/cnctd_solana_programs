@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::arguments::release_nft::PaymentSplit;
+use crate::arguments::release::PaymentSplit;
 
 #[account]
 pub struct ReleaseEscrow {
